@@ -7,9 +7,9 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
-#include <cerrno>
-#include <cstring>
-#include <csignal>
+#include <errno.h>
+#include <string.h>
+#include <signal.h>
 
 #include <iostream>
 #include <string>

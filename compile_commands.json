@@ -1,0 +1,62 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-c",
+      "-Wall",
+      "-I",
+      "./",
+      "-o",
+      "./bin/server",
+      "./src/server.cpp"
+    ],
+    "directory": "/home/jshen/Projects/chatroom",
+    "file": "/home/jshen/Projects/chatroom/src/server.cpp",
+    "output": "/home/jshen/Projects/chatroom/bin/server"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-c",
+      "-Wall",
+      "-I",
+      "./",
+      "-o",
+      "./bin/server",
+      "./src/chatroom.cpp"
+    ],
+    "directory": "/home/jshen/Projects/chatroom",
+    "file": "/home/jshen/Projects/chatroom/src/chatroom.cpp",
+    "output": "/home/jshen/Projects/chatroom/bin/server"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-c",
+      "-Wall",
+      "-I",
+      "./",
+      "-o",
+      "./bin/client",
+      "./src/client.cpp"
+    ],
+    "directory": "/home/jshen/Projects/chatroom",
+    "file": "/home/jshen/Projects/chatroom/src/client.cpp",
+    "output": "/home/jshen/Projects/chatroom/bin/client"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-c",
+      "-Wall",
+      "-I",
+      "./",
+      "-o",
+      "./bin/client",
+      "./src/chatroom.cpp"
+    ],
+    "directory": "/home/jshen/Projects/chatroom",
+    "file": "/home/jshen/Projects/chatroom/src/chatroom.cpp",
+    "output": "/home/jshen/Projects/chatroom/bin/client"
+  }
+]
