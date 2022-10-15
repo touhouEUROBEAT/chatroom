@@ -95,6 +95,11 @@ void eraseText(int cnt)
 */
 void send_message(int client_socket)
 {
+
+	/* TODO: Use real keys and ivs. */
+	unsigned char *key = (unsigned char *)"01234567890123456789012345678901";
+	unsigned char *iv = (unsigned char *)"0123456789012345";
+	
 	/*
 	  Keep handling user's input until user enters
 	  the command for exit.
@@ -102,21 +107,45 @@ void send_message(int client_socket)
 	while(1) {
 		cout <<colors[1] << "You : " << def_col;
 		
-		char cur_msg[MAX_LEN];
+		char cur_msg[128];
 		cin.getline(cur_msg, MAX_LEN);
+
+		//////////////////////////////////////
+		/* Encrypt */
+		unsigned char ciphertext[MAX_LEN];
+		int ciphertext_len;
+
+		ciphertext_len = encrypt ((unsigned char *)cur_msg, strlen ((char *)cur_msg), key, iv,
+						ciphertext);
+
+		/* Build hex encoding. */
+		std::stringstream ss;
+		ss << std::hex;
+		for (int i = 0; i < ciphertext_len; i += 1) {
+			ss << std::setw(2) << std::setfill('0') << (int)ciphertext[i];
+		}
+
+	        char to_send[128];
+		strcpy(to_send, ss.str().c_str());
 		
-		send(client_socket, cur_msg, sizeof(cur_msg),0);
+		send(client_socket, to_send, sizeof(to_send),0);
+		send(client_socket, &ciphertext_len, sizeof(ciphertext_len), 0);
+
+		cout << "SENT: " << to_send << " " << ciphertext_len << endl;
+		
 
 		/* Exit command found. */
+		/*
 		if (strcmp(cur_msg, "#exit") == 0) {
      			exit_flag = true;
 
-			/* Clean up and get out. */
+
 			t_recv.detach();	
 			close(client_socket);
 
 			return;
-		}	
+		}
+		*/
 	}		
 }
 
@@ -125,12 +154,18 @@ void send_message(int client_socket)
  */
 void recv_message(int client_socket)
 {
+	/* TODO: Use real keys and ivs. */
+	unsigned char *key = (unsigned char *)"01234567890123456789012345678901";
+	unsigned char *iv = (unsigned char *)"0123456789012345";
+
 	while(1) {
 		if(exit_flag)
 			return;
 		
 		char name[MAX_LEN], str[MAX_LEN];
+		
 		int color_code;
+		int ciphertext_len;
 
 		/*
 		  Keep listening for broadcast.
@@ -144,13 +179,35 @@ void recv_message(int client_socket)
 		*/
 		recv(client_socket, &color_code, sizeof(color_code), 0);
 		recv(client_socket, str, sizeof(str), 0);
+		recv(client_socket, &ciphertext_len, sizeof(ciphertext_len), 0);
 		
 		eraseText(6);
+
+		/////////
+		/*
+		  Decript.
+		*/
+
+		unsigned char decryptedtext[128];
+		int decryptedtext_len;
+
+		string temp(str);
+		unsigned char foo[128];
+		for (int i = 0; i < ciphertext_len * 2 - 1; i += 2) {
+			foo[i / 2] = std::stoi(temp.substr(i, 2), nullptr, 16);
+		}
+
+	        decryptedtext_len = decrypt(foo, ciphertext_len, key, iv,
+                                decryptedtext);
+
+
+		decryptedtext[decryptedtext_len] = '\0';
+		
 		
 		if (strcmp(name,"#NULL") != 0) {
-			cout << color(color_code)<< name <<" : "<< def_col<< str<< endl;
+			cout << color(color_code)<< name <<" : "<< def_col<< decryptedtext << endl;
 		} else {
-			cout << color(color_code) << str << endl;
+			cout << color(color_code) << decryptedtext << endl;
 		}
 		
 		cout << colors[1] << "You : " << def_col;

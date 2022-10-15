@@ -160,24 +160,34 @@ void end_connection(int id)
 */
 void handle_client(int client_socket, int id)
 {
+	
 	char name[MAX_LEN], cur_message[MAX_LEN];
 	recv(client_socket, name, sizeof(name), 0);
 	set_name(id, name);
 
+	/*
 	string welcome_message = string(name) + string(" has entered the chat");
 	
 	broadcast(string("#NULL"), id, welcome_message);	
 	server_out(color(id) + welcome_message + def_col);
+	*/
 	
 	while (1) {
 		int bytes_received = recv(client_socket, cur_message, sizeof(cur_message), 0);
+		cout << bytes_received << endl;
 		if (bytes_received <= 0)
 			return;
+
+		int ciphertext_len;
+		recv(client_socket, &ciphertext_len, sizeof(ciphertext_len), 0);
+
+		cout << "RECEIVED: " << cur_message << " " << ntohl(ciphertext_len) << endl;
 
 		/*
 		  Exit command detected. Broadcast exit message, and terminate
 		  connection to that user.
 		*/
+		/*
 		if (strcmp(cur_message, "#exit") == 0) {
 			string exit_message = string(name) + string(" has left");
 			broadcast(string("#NULL"), id, exit_message);
@@ -186,8 +196,30 @@ void handle_client(int client_socket, int id)
 			end_connection(id);
 			return;
 		}
+		*/
 
-		broadcast(string(name), id, string(cur_message));
-		server_out(color(id) + name + " : " + def_col + cur_message);
+		//broadcast(string(name), id, string(cur_message));
+		//server_out(color(id) + name + " : " + def_col + cur_message);
+
+		
+		lock_guard<mutex> guard(broadcast_mtx);
+		for (long unsigned int i = 0; i < clients.size(); i += 1) {
+			/*
+			  Format: name, id, message.
+			*/
+			if (clients[i].id != id) {
+				char foo[MAX_LEN];
+				strcpy(foo, name);
+			
+				send(clients[i].socket, foo, sizeof(foo), 0);
+				send(clients[i].socket, &id, sizeof(id), 0);
+
+				strcpy(foo, cur_message);
+				send(clients[i].socket, foo, sizeof(foo), 0);
+
+				send(clients[i].socket, &ciphertext_len, sizeof(ciphertext_len), 0);
+			}
+		}
+
 	}
 }

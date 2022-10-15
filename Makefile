@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -lpthread -Wall
+CFLAGS = -lpthread -lcrypto -lssl -Wall
 INCLUDES = -I ./
 SRC_PATH = ./src
 TARGET_PATH = ./bin
